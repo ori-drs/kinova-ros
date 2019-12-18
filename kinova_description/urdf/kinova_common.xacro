@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-
-
 <root xmlns:xi="http://www.w3.org/2001/XInclude"
 	xmlns:gazebo="http://playerstage.sourceforge.net/gazebo/xmlschema/#gz"
     xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
@@ -15,10 +13,9 @@
     xmlns:physics="http://playerstage.sourceforge.net/gazebo/xmlschema/#physics"
 	xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<xacro:include filename="$(find kinova_description)/urdf/kinova_inertial.xacro" />
+  <xacro:include filename="$(find kinova_description)/urdf/kinova_inertial.xacro" />
 
-
-    <xacro:property name="J_PI" value="3.1415926535897931" />
+  <xacro:property name="J_PI" value="3.1415926535897931" />
 
     <xacro:macro name="kinova_armlink" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
         <link name="${link_name}">
@@ -42,16 +39,230 @@
              </visual>
 	    </xacro:if>
 
-            <collision>
+            <!-- <collision>
                 <geometry>
+                    <mesh filename="package://kinova_description/meshes/collision/${link_mesh}.stl"/>
                     <mesh
-                        filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+                      filename="package://kinova_description/meshes/${link_mesh}.dae"/>
                 </geometry>
-            </collision>
+            </collision> -->
 						<xacro:kinova_inertial mesh_no="${mesh_no}"/>
       </link>
 
     </xacro:macro>
+
+  <xacro:macro name="kinova_armlink_base" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 0 0.078375" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.04125" length="0.156750"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="kinova_armlink_shoulder" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 0 -0.08" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.16"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="kinova_armlink_arm" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 ${-0.25+0.04125} 0" rpy="${J_PI/2} 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.50"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <xacro:macro name="kinova_armlink_forearm" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 ${0.125-0.04125} 0" rpy="${J_PI/2} 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.25"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- wrist_spherical_1 -->
+  <xacro:macro name="kinova_armlink_wrist_spherical_1" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 0 -0.07" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.14"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- wrist_spherical_2 -->
+  <xacro:macro name="kinova_armlink_wrist_spherical_2" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 0.045 0" rpy="${J_PI/2} 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.14"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- hand_2finger -->
+  <xacro:macro name="kinova_armlink_hand_2finger" params="link_name link_mesh ring_mesh:=ring_big use_ring_mesh:=false mesh_no">
+    <link name="${link_name}">
+      <visual>
+        <geometry>
+          <mesh filename="package://kinova_description/meshes/${link_mesh}.dae"/>
+        </geometry>
+        <material name="carbon_fiber">
+          <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+        </material>
+      </visual>
+
+      <!-- Adding ring to the model -->
+      <xacro:if value="${use_ring_mesh}">
+        <visual>
+          <geometry>
+            <mesh filename="package://kinova_description/meshes/${ring_mesh}.dae"/>
+          </geometry>
+        </visual>
+      </xacro:if>
+
+      <collision>
+        <origin xyz="0 0 -${.125/2}" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.065 0.11 0.125"/>
+        </geometry>
+      </collision>
+      <xacro:kinova_inertial mesh_no="${mesh_no}"/>
+    </link>
+  </xacro:macro>
 
   <xacro:macro name="kinova_armjoint" params="joint_name type parent child joint_axis_xyz joint_origin_xyz joint_origin_rpy joint_lower_limit joint_upper_limit joint_velocity_limit joint_torque_limit fixed:=false">
     <joint name="${joint_name}" type="${type}">

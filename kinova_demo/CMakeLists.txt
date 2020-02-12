@@ -58,5 +58,6 @@ install(PROGRAMS
   nodes/kinova_demo/testActionSvr.py
   nodes/kinova_demo/gravity_compensated_mode.py
   nodes/kinova_demo/go_home.py
+  nodes/kinova_demo/play_trajectory.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

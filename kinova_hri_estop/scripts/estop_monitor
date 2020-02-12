@@ -1,0 +1,71 @@
+#!/usr/bin/env python2
+
+import rospy
+from hri_safety_sense.msg import EstopStatus
+from kinova_msgs.srv import Start, Stop, ClearTrajectories, SetTorqueControlMode
+
+def stop():
+    try:
+        srv_mode(state=0)
+    except rospy.service.ServiceException:
+        pass
+    srv_stop()
+    try:
+        srv_traj()
+    except rospy.service.ServiceException:
+        pass
+
+def start():
+    srv_start()
+
+def callback(msg):
+    global stopped
+    global received_status
+    received_status = True
+    if stopped:
+        if msg.EstopStatus == 0:
+            start()
+            stopped = False
+            print("Resumed!")
+    else:
+        if msg.EstopStatus != 0:
+            stop()
+            stopped = True
+            print("E-Stopped!")
+
+if __name__ == '__main__':
+    try:
+        rospy.init_node('estop')
+
+        print("Waiting for services")
+
+        prefix = rospy.get_param('~robot_name_prefix', 'j2s6s200')
+        rospy.wait_for_service(prefix + '/in/stop')
+        rospy.wait_for_service(prefix + '/in/start')
+        rospy.wait_for_service(prefix + '/in/clear_trajectories')
+        rospy.wait_for_service(prefix + '/in/set_torque_control_mode')
+        srv_stop = rospy.ServiceProxy(prefix + '/in/stop', Stop)
+        srv_start = rospy.ServiceProxy(prefix + '/in/start', Start)
+        srv_traj = rospy.ServiceProxy(prefix + '/in/clear_trajectories', ClearTrajectories)
+        srv_mode = rospy.ServiceProxy(prefix + '/in/set_torque_control_mode', SetTorqueControlMode)
+
+        stopped = False
+        received_status = True
+
+        rospy.Subscriber("~input", EstopStatus, callback)
+
+        rate = rospy.Rate(0.5)
+
+        print("Started")
+
+        while not rospy.is_shutdown():
+            if not received_status and not stopped:
+                stop()
+                stopped = True
+                print("Timed out!")
+            received_status = False
+            rate.sleep()
+
+        print("Done!")
+    except rospy.ROSInterruptException:
+        print("Terminated!")

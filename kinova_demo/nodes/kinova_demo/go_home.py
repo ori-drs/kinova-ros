@@ -17,10 +17,11 @@ if __name__ == '__main__':
         rospy.init_node('go_home')
 
         # Preset joint configurations
-        jaco_candle = [180, 180, 180, 180, 180, 180]
-        jaco_retracted = [270, 150, 25, 360, 212.5, 180]
+        jaco_candle    = [270, 180, 180, 0, 180, 0]
+        jaco_retracted = [270, 150,  25, 0, 210, 0]
+        jaco_my_seed   = [270, 210,  60, 0, 120, 0]
 
-        result = joint_position_client(jaco_retracted + [0, 0], prefix)
+        result = joint_position_client(jaco_retracted + [0], prefix)
 
         print("Done!")
 

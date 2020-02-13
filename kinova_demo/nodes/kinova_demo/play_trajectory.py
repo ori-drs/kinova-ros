@@ -59,14 +59,18 @@ if __name__ == '__main__':
         rospy.init_node('my_playback')
         pub = rospy.Publisher('/j2s6s200_driver/trajectory_controller/command', JointTrajectory, queue_size=10)
 
-        print(pos[0,:])
+        # Start configuration
+        pos_start = np.r_[ pos[0,:], [0] ]
+        print(pos_start)
 
-        # Play trajectory
+        # Create trajectory message
         msg_trajectory = new_trajectory_msg(ts, pos, vel)
         # print(msg_trajectory)
+
+        # Play trajectory
         nb = raw_input('Starting trajectory playback, press return to start, n to skip')
         if (nb != 'n' and nb != 'N'):
-            joint_position_client(np.rad2deg(pos[0]), prefix)
+            joint_position_client(np.rad2deg(pos_start), prefix)
             time.sleep(0.5)
             pub.publish(msg_trajectory)
 

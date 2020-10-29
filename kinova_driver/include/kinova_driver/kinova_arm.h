@@ -67,6 +67,7 @@ class KinovaArm
     ~KinovaArm();
 
     //Subscriber callbacks --------------------------------------------------------
+    void jointPositionCallback(const kinova_msgs::JointAnglesConstPtr& joint_vel);
     void jointVelocityCallback(const kinova_msgs::JointVelocityConstPtr& joint_vel);
     void cartesianVelocityCallback(const kinova_msgs::PoseVelocityConstPtr& cartesian_vel);
     void cartesianVelocityWithFingersCallback(const kinova_msgs::PoseVelocityWithFingersConstPtr& cartesian_vel_with_fingers);
@@ -120,6 +121,7 @@ class KinovaArm
     KinovaComm &kinova_comm_;
 
     // Publishers, subscribers, services
+    ros::Subscriber joint_position_subscriber_;
     ros::Subscriber joint_velocity_subscriber_;
     ros::Subscriber cartesian_velocity_subscriber_;
     ros::Subscriber cartesian_velocity_with_fingers_subscriber_;

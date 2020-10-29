@@ -209,6 +209,8 @@ KinovaArm::KinovaArm(KinovaComm &arm, const ros::NodeHandle &nodeHandle, const s
     cartesian_command_publisher_ = node_handle_.advertise<kinova_msgs::KinovaPose>("out/cartesian_command", 2);
 
     /* Set up Subscribers*/
+    joint_position_subscriber_ = node_handle_.subscribe("in/joint_position", 1,
+                                 &KinovaArm::jointPositionCallback, this);
     joint_velocity_subscriber_ = node_handle_.subscribe("in/joint_velocity", 1,
                                  &KinovaArm::jointVelocityCallback, this);
     cartesian_velocity_subscriber_ = node_handle_.subscribe("in/cartesian_velocity", 1,
@@ -299,6 +301,30 @@ bool KinovaArm::setTorqueControlParametersService(kinova_msgs::SetTorqueControlP
         else
             kinova_comm_.setRobotCOMParam(MANUAL_INPUT,com_parameters);
 
+    }
+}
+
+void KinovaArm::jointPositionCallback(const kinova_msgs::JointAnglesConstPtr& joint_pos)
+{
+    if (!kinova_comm_.isStopped())
+    {
+        ROS_INFO_STREAM("Commanding position: " 
+                        << joint_pos->joint1 << ", " 
+                        << joint_pos->joint2 << ", " 
+                        << joint_pos->joint3 << ", " 
+                        << joint_pos->joint4 << ", " 
+                        << joint_pos->joint5 << ", " 
+                        << joint_pos->joint6 << ", " 
+                        << joint_pos->joint7
+                        );
+
+        KinovaAngles target(*joint_pos);
+
+        kinova_comm_.setJointAngles(target);
+    }
+    else
+    {
+        ROS_WARN_STREAM("Not executing joint position command as communication API is stopped.");
     }
 }
 

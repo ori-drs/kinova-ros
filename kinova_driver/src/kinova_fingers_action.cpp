@@ -138,7 +138,7 @@ void KinovaFingersActionServer::actionCallback(const kinova_msgs::SetFingersPosi
                 // Check if the action has succeeeded
                 result.fingers = current_finger_positions.constructFingersMsg();
                 action_server_.setSucceeded(result);
-                ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ": LINE " << __LINE__ << ", setSucceeded ");
+                ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ": LINE " << __LINE__ << ", setSucceeded (tolerance=" << tolerance_ << ")");
                 return;
             }
             else if (!last_nonstall_finger_positions_.isCloseToOther(current_finger_positions, stall_threshold_))
@@ -162,7 +162,7 @@ void KinovaFingersActionServer::actionCallback(const kinova_msgs::SetFingersPosi
                 ROS_WARN_STREAM(__PRETTY_FUNCTION__ << ": LINE " << __LINE__ << ", setPreempted ");
                 */
                 action_server_.setAborted(result);
-                ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ": LINE " << __LINE__ << ", Trajectory command failed ");
+                ROS_DEBUG_STREAM(__PRETTY_FUNCTION__ << ": LINE " << __LINE__ << ", Trajectory command failed: exceeded stall interval: " << (current_time - last_nonstall_time_).toSec() << " > " << stall_interval_seconds_);
                 return;
             }
 

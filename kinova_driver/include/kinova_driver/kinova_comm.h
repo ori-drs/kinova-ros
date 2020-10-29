@@ -98,7 +98,8 @@ class KinovaComm
     void getAngularCommand(AngularPosition &angular_command);
     void getJointAngles(KinovaAngles &angles);
     void setJointAngles(const KinovaAngles &angles, double speedJoint123 = 20,
-                        double speedJoint4567 = 20, int timeout = 0, bool push = true);
+                        double speedJoint4567 = 20, int timeout = 0, bool push = true,
+                        double delay = 0.0);
     void getJointVelocities(KinovaAngles &vels);
     void setJointVelocities(const AngularInfo& joint_vel);    
     void getJointAccelerations(AngularAcceleration &joint_acc);

@@ -550,7 +550,7 @@ void KinovaComm::getJointAngles(KinovaAngles &angles)
  * @param timeout default value 0.0, not used.
  * @param push default true, errase all trajectory before request motion..
  */
-void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123, double speedJoint4567, int timeout, bool push)
+void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123, double speedJoint4567, int timeout, bool push, double delay)
 {
     boost::recursive_mutex::scoped_lock lock(api_mutex_);
 
@@ -582,7 +582,7 @@ void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123
         throw KinovaCommException("Could not set angular control", result);
     }
 
-    kinova_joint.Position.Delay = 0.0;
+    kinova_joint.Position.Delay = delay;
     kinova_joint.Position.Type = ANGULAR_POSITION;
     kinova_joint.Position.Actuators = angles;
     kinova_joint.Limitations.speedParameter1 = speedJoint123;
@@ -594,7 +594,6 @@ void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123
     {
         throw KinovaCommException("Could not send advanced joint angle trajectory", result);
     }
-
 }
 
 

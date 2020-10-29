@@ -494,7 +494,7 @@ void KinovaComm::setAngularControl()
     getGlobalTrajectoryInfo(trajectory_fifo);
     if(trajectory_fifo.TrajectoryCount > 0)
     {
-        ROS_WARN("Current tranjectory count is %d, Please wait the trajectory to finish to swich to Angular control.", trajectory_fifo.TrajectoryCount);
+        ROS_WARN("Current trajectory count is %d, Please wait the trajectory to finish to swich to Angular control.", trajectory_fifo.TrajectoryCount);
         return;
     }
     int result = kinova_api_.setAngularControl();

@@ -16,7 +16,7 @@ JointTrajectoryController::JointTrajectoryController(kinova::KinovaComm &kinova_
     nh_.param<std::string>("robot_type",robot_type,"j2n6s300");
     number_joint_ =robot_type[3] - '0';
 
-    // Display debug information in teminal
+    // Display debug information in terminal
     if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
         ros::console::notifyLoggerLevelsChanged();
     }
@@ -153,7 +153,6 @@ void JointTrajectoryController::commandCB(const trajectory_msgs::JointTrajectory
         return;
 
     // store angle velocity command sent to robot
-//    std::vector<KinovaAngles> kinova_angle_command;
     kinova_angle_command_.resize(traj_command_points_.size());
     for (size_t i = 0; i<traj_command_points_.size(); i++)
     {

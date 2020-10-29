@@ -141,6 +141,7 @@ KinovaArm::KinovaArm(KinovaComm &arm, const ros::NodeHandle &nodeHandle, const s
     node_handle_.getParam("use_jaco_v1_fingers", is_jaco_v1_fingers);
     if (is_jaco_v1_fingers)
     {
+        ROS_WARN_STREAM("Using jaco v1 fingers");
         finger_conv_ratio_= 1.4;
     }
     else 
@@ -330,7 +331,6 @@ void KinovaArm::jointTorqueSubscriberCallback(const kinova_msgs::JointTorqueCons
         l_joint_torque_[6] = joint_torque->joint7;
 
         kinova_comm_.setJointTorques(l_joint_torque_);
-
     }
 }
 

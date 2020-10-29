@@ -828,7 +828,7 @@ struct TrajectoryPoint
 	int LimitationsActive;
 
 	/**
-	* @brief A flag that indicates if the tracjetory's synchronization is active. (1 is active 0 is not). ONLY AVAILABLE IN ANGULAR CONTROL.
+	* @brief A flag that indicates if the trajectory's synchronization is active. (1 is active 0 is not). ONLY AVAILABLE IN ANGULAR CONTROL.
 	*/
 	int SynchroType;
 

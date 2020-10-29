@@ -1489,7 +1489,8 @@ void KinovaComm::homeArm(void)
     startAPI();
 
     ROS_INFO("Homing the arm");
-    kinova_api_.moveHome();
+    int a = kinova_api_.moveHome();
+    ROS_INFO_STREAM("moveHome result: " << a);
 
     /*JoystickCommand mycommand;
     mycommand.InitStruct();

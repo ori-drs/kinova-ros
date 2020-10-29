@@ -638,7 +638,7 @@ void KinovaComm::setJointVelocities(const AngularInfo &joint_vel)
 
     if (isStopped())
     {
-        ROS_INFO("The velocities could not be set because the arm is stopped");
+        ROS_WARN("The velocities could not be set because the arm is stopped");
         return;
     }
 

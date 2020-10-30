@@ -199,7 +199,8 @@ void JointTrajectoryController::commandCB(const trajectory_msgs::JointTrajectory
         // Command directly as a queue
         for (std::size_t t = 0; t < traj_command_points_.size(); ++t)
         {
-            kinova_comm_.setJointAngles(kinova_angle_command_[t], 20.0, 20.0, 0, true, durations[t]);
+            // 36deg/s, 48deg/s are the maximum joint velocities specified in the URDF
+            kinova_comm_.setJointAngles(kinova_angle_command_[t], 36.0, 48.0, 0, true, durations[t]);
         }
     }
     else

@@ -657,9 +657,10 @@ void KinovaComm::setJointVelocities(const AngularInfo &joint_vel)
     // confusingly, velocity is passed in the position struct
     kinova_velocity.Position.Actuators = joint_vel;
 
-    // int result = kinova_api_.sendAdvanceTrajectory(kinova_velocity);
-    std::cout << "Sending joint velocities through basic trajectory interface... " << joint_vel.Actuator1 << std::endl;
-    int result = kinova_api_.sendBasicTrajectory(kinova_velocity);  // per kinova support
+    int result = kinova_api_.sendAdvanceTrajectory(kinova_velocity);
+    std::cout << "Sending joint velocities through advance trajectory interface... " << joint_vel.Actuator1 << " - result = " << result << std::endl;
+    // int result = kinova_api_.sendBasicTrajectory(kinova_velocity);  // per kinova support
+    // std::cout << "Sending joint velocities through basic trajectory interface... " << joint_vel.Actuator1 << std::endl;
     if (result != NO_ERROR_KINOVA)
     {
         throw KinovaCommException("Could not send advanced joint velocity trajectory", result);

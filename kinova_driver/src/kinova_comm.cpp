@@ -66,10 +66,15 @@ KinovaComm::KinovaComm(const ros::NodeHandle& node_handle,
     //initialize kinova api functions
     std::string api_type;
     node_handle.param<std::string>("connection_type", api_type, "USB");
-    if (api_type == "USB")
-      kinova_api_.initializeKinovaAPIFunctions(USB);
-    else
+    std::cout << "connection_type = " << api_type << std::endl;
+    if (api_type == "USB") {
+      std::cout << "Connecting via USB" << std::endl;
+      kinova_api_.initializeKinovaAPIFunctions(USB);  // segfault here
+    }
+    else {
+      std::cout << "Connecting via Ethernet" << std::endl;
       kinova_api_.initializeKinovaAPIFunctions(ETHERNET);
+    }
 
 
     //Set ethernet parameters

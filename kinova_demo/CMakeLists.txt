@@ -51,7 +51,7 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS
+catkin_install_python(PROGRAMS
   nodes/kinova_demo/pose_action_client.py
   nodes/kinova_demo/fingers_action_client.py
   nodes/kinova_demo/joints_action_client.py

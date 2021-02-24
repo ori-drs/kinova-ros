@@ -83,7 +83,7 @@ void JointTrajectoryController::commandCB(const trajectory_msgs::JointTrajectory
     // We support two modes for playing the trajectory:
     //  1) Velocity mode: The velocity is streamed to the driver/in/joint_velocity topic.
     //  2) Position mode: The trajectory is queued up with the corresponding delay.
-    const bool use_position_control_for_joint_trajectory = true;
+    const bool use_position_control_for_joint_trajectory = false;
 
     bool command_abort = false;
 

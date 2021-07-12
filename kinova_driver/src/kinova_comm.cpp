@@ -66,10 +66,15 @@ KinovaComm::KinovaComm(const ros::NodeHandle& node_handle,
     //initialize kinova api functions
     std::string api_type;
     node_handle.param<std::string>("connection_type", api_type, "USB");
-    if (api_type == "USB")
-      kinova_api_.initializeKinovaAPIFunctions(USB);
-    else
+    std::cout << "connection_type = " << api_type << std::endl;
+    if (api_type == "USB") {
+      std::cout << "Connecting via USB" << std::endl;
+      kinova_api_.initializeKinovaAPIFunctions(USB);  // segfault here
+    }
+    else {
+      std::cout << "Connecting via Ethernet" << std::endl;
       kinova_api_.initializeKinovaAPIFunctions(ETHERNET);
+    }
 
 
     //Set ethernet parameters
@@ -494,7 +499,7 @@ void KinovaComm::setAngularControl()
     getGlobalTrajectoryInfo(trajectory_fifo);
     if(trajectory_fifo.TrajectoryCount > 0)
     {
-        ROS_WARN("Current tranjectory count is %d, Please wait the trajectory to finish to swich to Angular control.", trajectory_fifo.TrajectoryCount);
+        ROS_WARN("Current trajectory count is %d, Please wait the trajectory to finish to swich to Angular control.", trajectory_fifo.TrajectoryCount);
         return;
     }
     int result = kinova_api_.setAngularControl();
@@ -550,7 +555,7 @@ void KinovaComm::getJointAngles(KinovaAngles &angles)
  * @param timeout default value 0.0, not used.
  * @param push default true, errase all trajectory before request motion..
  */
-void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123, double speedJoint4567, int timeout, bool push)
+void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123, double speedJoint4567, int timeout, bool push, double delay)
 {
     boost::recursive_mutex::scoped_lock lock(api_mutex_);
 
@@ -582,7 +587,7 @@ void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123
         throw KinovaCommException("Could not set angular control", result);
     }
 
-    kinova_joint.Position.Delay = 0.0;
+    kinova_joint.Position.Delay = delay;
     kinova_joint.Position.Type = ANGULAR_POSITION;
     kinova_joint.Position.Actuators = angles;
     kinova_joint.Limitations.speedParameter1 = speedJoint123;
@@ -594,7 +599,6 @@ void KinovaComm::setJointAngles(const KinovaAngles &angles, double speedJoint123
     {
         throw KinovaCommException("Could not send advanced joint angle trajectory", result);
     }
-
 }
 
 
@@ -638,7 +642,7 @@ void KinovaComm::setJointVelocities(const AngularInfo &joint_vel)
 
     if (isStopped())
     {
-        ROS_INFO("The velocities could not be set because the arm is stopped");
+        ROS_WARN("The velocities could not be set because the arm is stopped");
         return;
     }
 
@@ -1489,7 +1493,8 @@ void KinovaComm::homeArm(void)
     startAPI();
 
     ROS_INFO("Homing the arm");
-    kinova_api_.moveHome();
+    int a = kinova_api_.moveHome();
+    ROS_INFO_STREAM("moveHome result: " << a);
 
     /*JoystickCommand mycommand;
     mycommand.InitStruct();

@@ -16,7 +16,7 @@ JointTrajectoryController::JointTrajectoryController(kinova::KinovaComm &kinova_
     nh_.param<std::string>("robot_type",robot_type,"j2n6s300");
     number_joint_ =robot_type[3] - '0';
 
-    // Display debug information in teminal
+    // Display debug information in terminal
     if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
         ros::console::notifyLoggerLevelsChanged();
     }
@@ -80,23 +80,12 @@ JointTrajectoryController::~JointTrajectoryController()
 
 void JointTrajectoryController::commandCB(const trajectory_msgs::JointTrajectoryConstPtr &traj_msg)
 {
-    //ROS_DEBUG_STREAM_ONCE("Get in: " << __PRETTY_FUNCTION__);
+    // We support two modes for playing the trajectory:
+    //  1) Velocity mode: The velocity is streamed to the driver/in/joint_velocity topic.
+    //  2) Position mode: The trajectory is queued up with the corresponding delay.
+    const bool use_position_control_for_joint_trajectory = false;
 
     bool command_abort = false;
-
-//    // if receive new command, clear all trajectory and stop api
-//    kinova_comm_.stopAPI();
-//    if(!kinova_comm_.isStopped())
-//    {
-//        ros::Duration(0.01).sleep();
-//    }
-//    kinova_comm_.eraseAllTrajectories();
-
-//    kinova_comm_.startAPI();
-//    if(kinova_comm_.isStopped())
-//    {
-//        ros::Duration(0.01).sleep();
-//    }
 
     traj_command_points_ = traj_msg->points;
     ROS_INFO_STREAM("Trajectory controller Receive trajectory with points number: " << traj_command_points_.size());
@@ -153,45 +142,73 @@ void JointTrajectoryController::commandCB(const trajectory_msgs::JointTrajectory
         return;
 
     // store angle velocity command sent to robot
-//    std::vector<KinovaAngles> kinova_angle_command;
     kinova_angle_command_.resize(traj_command_points_.size());
     for (size_t i = 0; i<traj_command_points_.size(); i++)
     {
         kinova_angle_command_[i].InitStruct(); // initial joint velocity to zeros.
 
-        kinova_angle_command_[i].Actuator1 = traj_command_points_[i].velocities[0] *180/M_PI;
-        kinova_angle_command_[i].Actuator2 = traj_command_points_[i].velocities[1] *180/M_PI;
-        kinova_angle_command_[i].Actuator3 = traj_command_points_[i].velocities[2] *180/M_PI;
-        kinova_angle_command_[i].Actuator4 = traj_command_points_[i].velocities[3] *180/M_PI;
-        if (number_joint_>=6)
+        if (use_position_control_for_joint_trajectory)
         {
-            kinova_angle_command_[i].Actuator5 = traj_command_points_[i].velocities[4] *180/M_PI;
-            kinova_angle_command_[i].Actuator6 = traj_command_points_[i].velocities[5] *180/M_PI;
-            if (number_joint_==7)
-                kinova_angle_command_[i].Actuator7 = traj_command_points_[i].velocities[6] *180/M_PI;
+            kinova_angle_command_[i].Actuator1 = traj_command_points_[i].positions[0] *180/M_PI;
+            kinova_angle_command_[i].Actuator2 = traj_command_points_[i].positions[1] *180/M_PI;
+            kinova_angle_command_[i].Actuator3 = traj_command_points_[i].positions[2] *180/M_PI;
+            kinova_angle_command_[i].Actuator4 = traj_command_points_[i].positions[3] *180/M_PI;
+            if (number_joint_>=6)
+            {
+                kinova_angle_command_[i].Actuator5 = traj_command_points_[i].positions[4] *180/M_PI;
+                kinova_angle_command_[i].Actuator6 = traj_command_points_[i].positions[5] *180/M_PI;
+                if (number_joint_==7)
+                    kinova_angle_command_[i].Actuator7 = traj_command_points_[i].positions[6] *180/M_PI;
+            }
+        }
+        else
+        {
+            // Commanding in velocity mode
+            kinova_angle_command_[i].Actuator1 = traj_command_points_[i].velocities[0] *180/M_PI;
+            kinova_angle_command_[i].Actuator2 = traj_command_points_[i].velocities[1] *180/M_PI;
+            kinova_angle_command_[i].Actuator3 = traj_command_points_[i].velocities[2] *180/M_PI;
+            kinova_angle_command_[i].Actuator4 = traj_command_points_[i].velocities[3] *180/M_PI;
+            if (number_joint_>=6)
+            {
+                kinova_angle_command_[i].Actuator5 = traj_command_points_[i].velocities[4] *180/M_PI;
+                kinova_angle_command_[i].Actuator6 = traj_command_points_[i].velocities[5] *180/M_PI;
+                if (number_joint_==7)
+                    kinova_angle_command_[i].Actuator7 = traj_command_points_[i].velocities[6] *180/M_PI;
+            }
         }
     }
-    // replace last velocity command (which is zero) to previous non-zero value, trying to drive robot moving a forward to get closer to the goal.
-    kinova_angle_command_[traj_command_points_.size()-1] = kinova_angle_command_[traj_command_points_.size()-2];
+
+    if (!use_position_control_for_joint_trajectory)
+    {
+        // replace last velocity command (which is zero) to previous non-zero value, trying to drive robot moving a forward to get closer to the goal.
+        kinova_angle_command_[traj_command_points_.size()-1] = kinova_angle_command_[traj_command_points_.size()-2];
+    }
 
     std::vector<double> durations(traj_command_points_.size(), 0.0); // computed by time_from_start
     double trajectory_duration = traj_command_points_[0].time_from_start.toSec();
 
     durations[0] = trajectory_duration;
-//    ROS_DEBUG_STREAM("durationsn 0 is: " << durations[0]);
-
     for (int i = 1; i<traj_command_points_.size(); i++)
     {
         durations[i] = (traj_command_points_[i].time_from_start - traj_command_points_[i-1].time_from_start).toSec();
         trajectory_duration += durations[i];
-//        ROS_DEBUG_STREAM("durations " << i << " is: " << durations[i]);
     }
 
-    // start timer thread to publish joint velocity command
-    time_pub_joint_vel_ = ros::Time::now();
-    timer_pub_joint_vel_.start();
-
-    //ROS_DEBUG_STREAM_ONCE("Get out: " << __PRETTY_FUNCTION__);
+    if (use_position_control_for_joint_trajectory)
+    {
+        // Command directly as a queue
+        for (std::size_t t = 0; t < traj_command_points_.size(); ++t)
+        {
+            // 36deg/s, 48deg/s are the maximum joint velocities specified in the URDF
+            kinova_comm_.setJointAngles(kinova_angle_command_[t], 36.0, 48.0, 0, true, durations[t]);
+        }
+    }
+    else
+    {
+        // start timer thread to publish joint velocity command
+        time_pub_joint_vel_ = ros::Time::now();
+        timer_pub_joint_vel_.start();
+    }
 }
 
 

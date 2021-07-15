@@ -286,6 +286,7 @@
      </transmission>
      <!--For torque sensing in simulation-->
      <gazebo reference="${joint_name}">
+        <implicitSpringDamper>1</implicitSpringDamper>
         <provideFeedback>true</provideFeedback>
       </gazebo>
       <gazebo>

@@ -253,11 +253,13 @@ bool KinovaArm::homeArmServiceCallback(kinova_msgs::HomeArm::Request &req, kinov
 bool KinovaArm::ActivateNullSpaceModeCallback(kinova_msgs::SetNullSpaceModeState::Request &req, kinova_msgs::SetNullSpaceModeState::Response &res)
 {
     kinova_comm_.SetRedundantJointNullSpaceMotion(req.state);
+    return true;
 }
 
 bool KinovaArm::setTorqueControlModeService(kinova_msgs::SetTorqueControlMode::Request &req, kinova_msgs::SetTorqueControlMode::Response &res)
 {
     kinova_comm_.SetTorqueControlState(req.state);
+    return true;
 }
 
 bool KinovaArm::setTorqueControlParametersService(kinova_msgs::SetTorqueControlParameters::Request &req, kinova_msgs::SetTorqueControlParameters::Response &res)
@@ -302,6 +304,8 @@ bool KinovaArm::setTorqueControlParametersService(kinova_msgs::SetTorqueControlP
             kinova_comm_.setRobotCOMParam(MANUAL_INPUT,com_parameters);
 
     }
+
+    return true;
 }
 
 void KinovaArm::jointPositionCallback(const kinova_msgs::JointAnglesConstPtr& joint_pos)
@@ -415,6 +419,7 @@ bool KinovaArm::addCartesianPoseToTrajectory(kinova_msgs::AddPoseToCartesianTraj
     pose.ThetaY = req.ThetaY;
     pose.ThetaZ = req.ThetaZ;
     kinova_comm_.setCartesianPosition(pose,false);
+    return true;
 }
 
 bool KinovaArm::clearTrajectoriesServiceCallback(
@@ -422,6 +427,7 @@ bool KinovaArm::clearTrajectoriesServiceCallback(
         kinova_msgs::ClearTrajectories::Response &res)
 {
     kinova_comm_.eraseAllTrajectories();
+    return true;
 }
 
 bool KinovaArm::setForceControlParamsCallback(
@@ -488,6 +494,7 @@ bool KinovaArm::runCOMParameterEstimationService(
         kinova_msgs::RunCOMParametersEstimation::Response &res)
 {
     kinova_comm_.runCOMParameterEstimation(robot_type_);
+    return true;
 }
 
 bool KinovaArm::setEndEffectorOffsetCallback(kinova_msgs::SetEndEffectorOffset::Request &req, kinova_msgs::SetEndEffectorOffset::Response &res)
